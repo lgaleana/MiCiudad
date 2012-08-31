@@ -1,8 +1,9 @@
 package com.apporta.miciudad;
 
+import com.apporta.location.JavascriptInterface;
+
 import android.os.Bundle;
 import android.app.Activity;
-import android.view.Menu;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
@@ -17,12 +18,7 @@ public class MapActivity extends Activity {
         WebSettings webSettings = myWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         
+        myWebView.addJavascriptInterface(new JavascriptInterface(), "Android");
         myWebView.loadUrl("http://mytrip.x10.mx/");
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_map, menu);
-        return true;
     }
 }
