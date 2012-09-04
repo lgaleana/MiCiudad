@@ -2,11 +2,20 @@ package com.apporta.location;
 
 public class JavascriptInterface {
 	
+	double lat = 0.0;
+	double lng = 0.0;
+	
+	LocationHandler locationHandler;
+	
+	public JavascriptInterface(LocationHandler locHandler) {
+		locationHandler = locHandler;
+	}
+	
 	public double getUserLat() {
-		return 25.6498049;
+		return locationHandler.getLat();
 	}
 	
 	public double getUserLng() {
-		return -100.2911006;
+		return locationHandler.getLng();
 	}
 }
