@@ -15,15 +15,15 @@ public class LocationHandler implements LocationListener {
 	
 	public LocationHandler(Context context) {
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-	}
-	
-	public boolean requestUpdates() {
-		Criteria criteria = new Criteria();
+        
+        Criteria criteria = new Criteria();
         criteria.setAccuracy(Criteria.ACCURACY_FINE);
         criteria.setCostAllowed(false);
         
 		locationProvider = locationManager.getBestProvider(criteria, true);
-		
+	}
+	
+	public boolean requestUpdates() {
 		if(locationProvider == null)
 			return false;
 		else {
