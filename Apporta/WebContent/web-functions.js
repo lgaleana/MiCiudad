@@ -14,17 +14,6 @@ function setRequest(method, url, body, func) {
 	xmlhttp.send(body);
 }
 
-function web_getEvents() {
-	var url = "events";
-	
-	setRequest("GET", url, null, function() {
-		if (xmlhttp.readyState==4 && xmlhttp.status==200) {
-			var jObject = JSON.parse(xmlhttp.responseText);
-			console.log(jObject);
-		}
-	});
-}
-
 function web_getViewportEvents(bounds) {
 	var northEast = bounds.getNorthEast();
 	var southWest = bounds.getSouthWest();
@@ -47,12 +36,10 @@ function web_getViewportEvents(bounds) {
 
 function web_saveEvent(pos) {
 	var url = "events";
-	var datetime = currentTime();
 	var description = "Evento de prueba";
 	var type = "Otro";
 	
-	var body = pos.lat() + "|" + pos.lng() + "|" + datetime + "|" + description +
-			   "|" + type;
+	var body = pos.lat() + "|" + pos.lng() + "|" + description + "|" + type;
 	
 	setRequest("POST", url, body, function() {
 		if (xmlhttp.readyState==4 && xmlhttp.status==200) {
@@ -61,13 +48,10 @@ function web_saveEvent(pos) {
 	});
 }
 
-function web_determineIntersection(path) {
-	var bounds = map.getBounds();
-	for(var i=0; i<eventsContainer.length; i++) {
-		var latLng = eventsContainer[i].getPosition();
-		if(bounds.contains(latLng))
-			for(var j=1; j<path.length; j++)
-				if(distanceToPath(latLng, path[j-1], path[j]) <= 5)
-					alert("¡Evento en tu ruta!");
-	}
+function web_getUserLat() {
+	return 25.6498049;
+}
+
+function web_getUserLng() {
+	return -100.2911006;
 }

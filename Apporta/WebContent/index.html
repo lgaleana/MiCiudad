@@ -1,36 +1,46 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+		<meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, user-scalable=no" />
 		<meta charset="UTF-8" />
 		<title>Apporta</title>
+		
 		<style type="text/css">
-			html { height: 100% }
-			body { height: 100%; margin: 0; padding: 0 }
-			#map_canvas { height: 100% }
+			html, body, #map_canvas { height: 100%; margin: 0; padding: 0; }
+			#top_bar { position: absolute; left: 0; right: 0; z-index: 1000; background-color: white; }
+			#search_text { position: absolute; left: 2em; right: 9em; }
+			#destiny { width: 100%; }
+			.float_left { float: left; }
+			.float_right { float: right; }
 		</style>
 		
-		<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyD-J2vNmhqJRrtq2snuPNW4xPpk8D6w4es&libraries=geometry,places&sensor=true&language=es&region=MX"></script>
+		<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyD-J2vNmhqJRrtq2snuPNW4xPpk8D6w4es&sensor=true&language=es&region=MX"></script>
 		
 		<script type="text/javascript">
-			var initialLat = 25.6667;
-			var initialLng = -100.3000;
 			var initialZoom = 13;
 			var map;
 			
 			var earthRadius = 6378137;
 			
-			var userLat;
-			var userLng;
+			var TRAFFIC = 0;
+			var ACCIDENT = 1;
+			var INFRAESTRUCTURE = 2;
+			var POLICE = 3;
+			var OTHER = 4;
 			
 			var infowindow;
 			var directionsDisplay;
 			
+			var userMarker;
 			var eventsContainer;
+			
+			var android = false;
 		
 			function initialize() {
+				android = (navigator.userAgent.indexOf('Android') != -1);
+				
 				map = new google.maps.Map(document.getElementById("map_canvas"), {
-					center: new google.maps.LatLng(initialLat, initialLng),
+					center: new google.maps.LatLng(getUserLat(), getUserLng()),
 					zoom: initialZoom,
 					mapTypeId: google.maps.MapTypeId.ROADMAP,
 					panControl: false,
@@ -39,110 +49,89 @@
 					streetViewControl: false,
 					overviewMapControl: false
 				});
-				
+
 				infowindow = new google.maps.InfoWindow();
 				directionsDisplay = new google.maps.DirectionsRenderer();
-				
-				userLat = 25.6498049;
-				userLng = -100.2911006;
-				
-				var marker = createMarker(userLat, userLng, "Usuario");
-				marker.setMap(map);
-				
-				google.maps.event.addListenerOnce(map, 'idle', function(){
-					getViewportEvents(map.getBounds());
-				});
-				google.maps.event.addListener(map, 'dragend', function() {
-					getViewportEvents(map.getBounds());
-				});
-				google.maps.event.addListener(map, 'zoom_changed', function() {
-					getViewportEvents(map.getBounds());
-				});
-				google.maps.event.addListener(map, 'rightclick', function(event) {
-					saveEvent(event.latLng);
-				});
+				userMarker = createUserMarker(0.0, 0.0);
 				
 				eventsContainer = new Array();
-			}
-			
-			function keyHandler(e) {
-		    	if(e.keyCode == 13 && document.getElementById("destiny").value != "")
-		    		routePlanner();
-		    }
-		    
-		    function routePlanner() {
-		    	destinyName = document.getElementById("destiny").value;
-		    	generateRoute(destinyName);
-		    }
-		    
-		    function generateRoute(destiny) {
-		    	var destinyGeocoder = new google.maps.Geocoder();
-		    	
-		    	destinyGeocoder.geocode({'bounds': map.getBounds(), 'address': destiny}, function(destinyResults, destinyStatus) {
-		    		if(destinyStatus == google.maps.GeocoderStatus.OK) {
-		    			finalLatLng = new google.maps.LatLng(destinyResults[0].geometry.location.lat(), destinyResults[0].geometry.location.lng());
-		    			processRoute(new google.maps.LatLng(userLat, userLng), finalLatLng);
-		    		}
-		    		else if(destinyStatus == google.maps.GeocoderStatus.ZERO_RESULTS)
-		    			directionsDisplay.setMap(null);
-		    	});
+				
+				google.maps.event.addListenerOnce(map, 'idle', function() {
+					setInterval(displayUserLocation, 1000);
+				});
+				google.maps.event.addListener(map, 'bounds_changed', function() {
+					getViewportEvents(map.getBounds());
+				});
 			}
 		    
-		    function processRoute(originLatLng, destinyLatLng) {
-		    	directionsDisplay.setMap(map);
+		    function displayUserLocation() {
+		    	var userLat = getUserLat();
+		    	var userLng = getUserLng();
 		    	
-		    	var request = {
-		    		origin: originLatLng,
-		    		destination: destinyLatLng,
-		    		travelMode: google.maps.TravelMode.DRIVING
-		  		};
-		    	
-		    	var directionsService = new google.maps.DirectionsService();
-		  		directionsService.route(request, function(result, status) {
-		    		if (status == google.maps.DirectionsStatus.OK) {
-		    			directionsDisplay.setDirections(result);
-		    			determineIntersection(result.routes[0].overview_path);
-		    		}
-		  		});
+		    	if(userMarker.getPosition().lat() != userLat || userMarker.getPosition().lng() != userLng) {
+		    		var marker = createUserMarker(userLat, userLng);
+			    	marker.setMap(map);
+			    	
+			    	if(userMarker)
+			    		userMarker.setMap(null);
+			    	
+			    	userMarker = marker;
+		    	}
 		    }
 		    
-		    function determineIntersection(path) {
-		    	web_determineIntersection(path);
+		    function getUserLat() {
+		    	var lat;
+		    	if(android)
+		    		lat = Android.getUserLat();
+		    	else
+		    		lat = web_getUserLat();
+		    	
+		    	return lat;
+		    }
+		    
+		    function getUserLng() {
+		    	var lng;
+		    	if(android)
+		    		lng = Android.getUserLng();
+		    	else
+		    		lng = web_getUserLng();
+		    	
+		    	return lng;
 		    }
 		    
 		    function getViewportEvents(bounds) {
-		    	var events = web_getViewportEvents(bounds);
+		    	web_getViewportEvents(bounds);
 		    }
 		    
-		    function saveEvent(latLng) {
-		    	web_saveEvent(latLng);
-		    }
-		    
-		    function createMarker(lat, lng, text) {
-		    	var marker = new google.maps.Marker({
-		    	    position: new google.maps.LatLng(lat, lng)
-		    	});
+		    function saveEvent() {
+		    	if(android)
+		    		Android.showDialog();
 		    	
-		    	google.maps.event.addListener(marker, 'click', function() {
-		    		infowindow.setContent(text);
-		    		infowindow.open(map, marker);
-		    	});
-		    	
-		    	return marker;
+		    	setTimeout(function() {getViewportEvents(map.getBounds())}, 1000);
 		    }
 
 		</script>
 		
 		<script type="text/javascript" src="web-functions.js"></script>
 		<script type="text/javascript" src="apporta.js"></script>
+		<script type="text/javascript" src="directions.js"></script>
 		<script type="text/javascript" src="math-functions.js"></script>
 		
 	</head>
 	<body onload="initialize()">
-		<div>
-			<input id="destiny" type="text" onkeypress="keyHandler(event)" />
-			<input type="button" value="Go!" onclick="routePlanner()" />
+		<div id="top_bar">
+			<div class="float_right">
+				<input type="button" onclick="saveEvent()" />
+				<input type="button" onclick="" />
+			</div>
+			<div>
+				<input class="float_left" type="button" />
+				<input class="float_right" type="button" value="Buscar" onclick="routePlanner()" />
+				<div id="search_text">
+					<input id="destiny" type="text" placeholder="Buscar" onkeypress="keyHandler(event)" />
+				</div>
+			</div>
 		</div>
-		<div id="map_canvas" style="width:100%; height:100%"></div>
+		<div id="map_canvas"></div>
 	</body>
 </html>
