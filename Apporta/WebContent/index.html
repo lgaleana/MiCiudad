@@ -3,21 +3,15 @@
 	<head>
 		<meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, user-scalable=no" />
 		<meta charset="UTF-8" />
-		<title>Apporta</title>
+		<title>MiCiudad</title>
 		
-		<style type="text/css">
-			html, body, #map_canvas { height: 100%; margin: 0; padding: 0; }
-			#top_bar { position: absolute; left: 0; right: 0; z-index: 1000; background-color: white; }
-			#search_text { position: absolute; left: 2em; right: 9em; }
-			#destiny { width: 100%; }
-			.float_left { float: left; }
-			.float_right { float: right; }
-		</style>
+		<link rel="stylesheet" type="text/css" href="reset.css" />
+		<link rel="stylesheet" type="text/css" href="main.css" />
 		
 		<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyD-J2vNmhqJRrtq2snuPNW4xPpk8D6w4es&sensor=true&language=es&region=MX"></script>
 		
 		<script type="text/javascript">
-			var initialZoom = 13;
+			var initialZoom = 14;
 			var map;
 			
 			var earthRadius = 6378137;
@@ -35,7 +29,7 @@
 			var eventsContainer;
 			
 			var android = false;
-		
+			
 			function initialize() {
 				android = (navigator.userAgent.indexOf('Android') != -1);
 				
@@ -67,6 +61,7 @@
 		    function displayUserLocation() {
 		    	var userLat = getUserLat();
 		    	var userLng = getUserLng();
+		    	var zIndex = 1000;
 		    	
 		    	if(userMarker.getPosition().lat() != userLat || userMarker.getPosition().lng() != userLng) {
 		    		var marker = createUserMarker(userLat, userLng);
@@ -76,7 +71,17 @@
 			    		userMarker.setMap(null);
 			    	
 			    	userMarker = marker;
+			    	userMarker.setZIndex(zIndex);
 		    	}
+		    }
+		    
+		    function moveToUser() {
+		    	map.panTo(new google.maps.LatLng(getUserLat(), getUserLng()));
+		    }
+		    
+		    function reset() {
+		    	directionsDisplay.setMap(null);
+		    	moveToUser();
 		    }
 		    
 		    function getUserLat() {
@@ -104,33 +109,46 @@
 		    }
 		    
 		    function saveEvent() {
-		    	if(android)
-		    		Android.showDialog();
-		    	
-		    	setTimeout(function() {getViewportEvents(map.getBounds())}, 1000);
+		    	if(android) {
+		    		var pos = new google.maps.LatLng(getUserLat(), getUserLng());
+		    		
+		    		var request = {
+		    				origin: pos,
+		    				destination: pos,
+		    				travelMode: google.maps.TravelMode.DRIVING
+		    		};
+		    		
+		    		var directionsService = new google.maps.DirectionsService();
+		    		directionsService.route(request, function(result, status) {
+		    			if (status == google.maps.DirectionsStatus.OK) {
+		    				Android.showEventSelectorDialog(
+		    						result.routes[0].legs[0].start_location.lat(),
+		    						result.routes[0].legs[0].start_location.lng()
+		    				);
+		    			}
+		    		});
+		    	}
 		    }
 
 		</script>
 		
 		<script type="text/javascript" src="web-functions.js"></script>
-		<script type="text/javascript" src="apporta.js"></script>
+		<script type="text/javascript" src="core.js"></script>
 		<script type="text/javascript" src="directions.js"></script>
 		<script type="text/javascript" src="math-functions.js"></script>
 		
 	</head>
 	<body onload="initialize()">
 		<div id="top_bar">
-			<div class="float_right">
-				<input type="button" onclick="saveEvent()" />
-				<input type="button" onclick="" />
+			<a id="logo" onclick="reset()" href="#"></a>
+			<div id="bar_right">
+				<a id="go" onclick="routePlanner()" href="#">Ir</a>
+				<a id="saveEvent" onclick="saveEvent()" href="#"></a>
+				<a id="userPosition" onclick="moveToUser()" href="#"></a>
 			</div>
-			<div>
-				<input class="float_left" type="button" />
-				<input class="float_right" type="button" value="Buscar" onclick="routePlanner()" />
-				<div id="search_text">
-					<input id="destiny" type="text" placeholder="Buscar" onkeypress="keyHandler(event)" />
-				</div>
-			</div>
+			<span id="search_text">
+				<input id="destiny" type="text" placeholder="Destino" onkeypress="keyHandler(event)" />
+			</span>
 		</div>
 		<div id="map_canvas"></div>
 	</body>

@@ -1,0 +1,45 @@
+html, body, #map_canvas { height: 100%; margin: 0; padding: 0; }
+#top_bar { position: absolute; left: 0; right: 0; z-index: 1000; background-color: #334577; }
+#bar_right { float: right; }
+
+#search_text {
+	position: absolute;
+	left: 44px;
+	right: 119px;
+	
+	padding: 3px;
+	padding-right: 0px;
+}
+#destiny { width: 100%; height: 27px; }
+
+#top_bar a {
+	display: block;
+	background-repeat: no-repeat;
+	float: left;
+}
+
+#bar_right a:active {
+	background-color: #5D70A1;
+}
+
+#logo {
+	width: 44px;
+	height: 40px;
+	background-image: url(images/logo.png);
+}
+#saveEvent { background-image: url(images/checkin.png); }
+#userPosition { background-image: url(images/return.png);}
+#go {
+	color: white;
+	font: 29px Verdana, Arial, Helvetica, sans-serif;
+	text-decoration: none;
+	
+	padding: 3px 8px;
+}
+#saveEvent, #userPosition {
+	width: 36px;
+	height: 40px;
+	
+	background-position: 3px 3px;
+	border-left: 1px solid #5D70A1;
+}

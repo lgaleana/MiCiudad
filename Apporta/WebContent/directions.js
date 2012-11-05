@@ -46,7 +46,12 @@ function determineIntersection(path) {
 		var latLng = eventsContainer[i].getPosition();
 		if(bounds.contains(latLng))
 			for(var j=1; j<path.length; j++)
-				if(distanceToPath(latLng, path[j-1], path[j]) <= 5)
-					alert("¡Evento en tu ruta!");
+				if(distanceToPath(latLng, path[j-1], path[j]) <= 5) {
+					var message = "Hay un evento en tu ruta.";
+					if(android)
+						Android.showDirectionsInfoDialog(message);
+					else
+						alert(message);
+				}
 	}
 }
