@@ -19,7 +19,7 @@ public class LocationHandler implements LocationListener {
 	private boolean listenNetwork;
 	
 	private static final int TIME_THRESHOLD = 1000 * 60 * 2; // Two minutes.
-	private static final int DISTANCE_THRESHOLD = 1000 * 5; // 5km.
+	private static final int DISTANCE_THRESHOLD = 1000 * 2; // 2km.
 	
 	public LocationHandler(LocationManager locManager) {
         locationManager = locManager;

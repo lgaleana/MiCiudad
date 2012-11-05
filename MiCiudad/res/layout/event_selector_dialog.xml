@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/layout_root"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:padding="10dp" >
+    <Spinner android:id="@+id/event_selector_spinner"
+    		 android:layout_width="wrap_content"
+    		 android:layout_height="wrap_content" />
+    <EditText android:id="@+id/event_selector_text"
+        	  android:layout_width="fill_parent"
+        	  android:layout_height="wrap_content"
+        	  android:hint="@string/event_selector_message"
+        	  android:singleLine="false"
+        	  android:maxLines="2"
+        	  android:scrollbars="vertical"
+        	  android:layout_below="@id/event_selector_spinner" />
+    <Button android:id="@+id/event_selector_accept_button"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:text="@string/accept_message"
+        	android:layout_below="@id/event_selector_text"
+        	android:layout_alignParentLeft="true" />
+   <Button android:id="@+id/event_selector_cancel_button"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:text="@string/cancel_message"
+        	android:layout_below="@id/event_selector_text"
+        	android:layout_alignParentRight="true" /> 
+</RelativeLayout>
