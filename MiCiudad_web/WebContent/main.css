@@ -1,5 +1,11 @@
 html, body, #map_canvas { height: 100%; margin: 0; padding: 0; }
-#top_bar { position: absolute; left: 0; right: 0; z-index: 1000; background-color: #334577; }
+#top_bar {
+	position: absolute;
+	left: 0;
+	right: 0;
+	z-index: 1000;
+	background-color: #334577;
+}
 #bar_right { float: right; }
 
 #search_text {
