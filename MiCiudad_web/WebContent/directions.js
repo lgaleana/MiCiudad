@@ -1,12 +1,8 @@
-function keyHandler(e) {
-	if(e.keyCode == 13)
-		routePlanner();
-}
-
 function routePlanner() {
-	destinyName = document.getElementById("destiny").value;
+	var destinyName = destiny.value;
 	if(destinyName != "")
 		generateRoute(destinyName);
+	return false;
 }
 
 function generateRoute(destiny) {

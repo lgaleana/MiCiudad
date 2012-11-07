@@ -30,6 +30,8 @@
 			
 			var android = false;
 			
+			var destiny;
+			
 			function initialize() {
 				android = (navigator.userAgent.indexOf('Android') != -1);
 				
@@ -52,6 +54,7 @@
 				
 				google.maps.event.addListenerOnce(map, 'idle', function() {
 					setInterval(displayUserLocation, 1000);
+					setLinkFunctions();
 				});
 				google.maps.event.addListener(map, 'bounds_changed', function() {
 					getViewportEvents(map.getBounds());
@@ -77,11 +80,15 @@
 		    
 		    function moveToUser() {
 		    	map.panTo(new google.maps.LatLng(getUserLat(), getUserLng()));
+		    	return false;
 		    }
 		    
 		    function reset() {
 		    	directionsDisplay.setMap(null);
+		    	map.setZoom(initialZoom);
 		    	moveToUser();
+		    	destiny.value = "";
+		    	return false;
 		    }
 		    
 		    function getUserLat() {
@@ -128,6 +135,20 @@
 		    			}
 		    		});
 		    	}
+		    	return false;
+		    }
+		    
+		    function setLinkFunctions() {
+		    	var logo = document.getElementById("logo");
+		    	destiny = document.getElementById("destiny");
+		    	var go = document.getElementById("go");
+		    	var sEvent = document.getElementById("saveEvent");
+		    	var userPosition = document.getElementById("userPosition");
+		    	
+		    	logo.onclick = reset;
+		    	go.onclick = routePlanner;
+		    	sEvent.onclick = saveEvent;
+		    	userPosition.onclick = moveToUser;
 		    }
 
 		</script>
@@ -140,14 +161,14 @@
 	</head>
 	<body onload="initialize()">
 		<div id="top_bar">
-			<a id="logo" onclick="reset()" href="#"></a>
+			<a id="logo" href=""></a>
 			<div id="bar_right">
-				<a id="go" onclick="routePlanner()" href="#">Ir</a>
-				<a id="saveEvent" onclick="saveEvent()" href="#"></a>
-				<a id="userPosition" onclick="moveToUser()" href="#"></a>
+				<a id="go" href="">Ir</a>
+				<a id="saveEvent" href=""></a>
+				<a id="userPosition" href=""></a>
 			</div>
 			<span id="search_text">
-				<input id="destiny" type="text" placeholder="Destino" onkeypress="keyHandler(event)" />
+				<input id="destiny" type="text" placeholder="Destino" />
 			</span>
 		</div>
 		<div id="map_canvas"></div>
